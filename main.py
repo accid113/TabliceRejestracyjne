@@ -1,16 +1,22 @@
-# This is a sample Python script.
+import pytesseract
+import cv2
+import re
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+def spr(numer):
+    wzor = r'^[A-Z]{2,3} [0-9A-Z]{3,5}$'
+    return bool(re.match(wzor, numer))
 
+def odczytaj_tekst(sciezka):
+    obraz = cv2.imread(sciezka)
+    obraz_szary = cv2.cvtColor(obraz, cv2.COLOR_BGR2GRAY)
+    obraz_przeksztalcony = cv2.threshold(obraz_szary, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    tekst = pytesseract.image_to_string(obraz_przeksztalcony, config='--oem 3 --psm 6')
+    return tekst.strip()
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+sciezka = 'xd.png'
+numer_tablicy = odczytaj_tekst(sciezka)
 
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+if spr(numer_tablicy):
+    print(f'Numer tablicy rejestracyjnej "{numer_tablicy}" jest poprawny.')
+else:
+    print(f'Numer tablicy rejestracyjnej "{numer_tablicy}" jest niepoprawny.')
